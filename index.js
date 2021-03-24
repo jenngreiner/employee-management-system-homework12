@@ -52,20 +52,31 @@ const viewAllEmployees = (data) => {
         })
     })
 };
-// Add departments, roles, employees
+// * Add departments, roles, employees
 const addEmployee = () => {
     inquirer.prompt(
         {
-            // what is the employees first name (input)
+            type: 'input',
+            name: 'firstName',
+            message: 'What is the employees first name?'
         },
         {
-            // what is the employees last name (input)
+            type: 'input',
+            name: 'lastName',
+            message: 'What is the employees last name?'
         },
         {
-            // what is the employees role (list)
+            type: 'list',
+            name: 'role',
+            message: 'What is the employees role?',
+            choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Accountant', 'Legal Team Lead', 'Lawyer']
         },
         {
-            // who is the employees manager? (list)
+            type: 'list',
+            name: 'role',
+            message: 'Who is the employees manager?',
+            choices: []
+            // TODO: figure out how to include list of managers from DB
         }
     )
 }
@@ -74,28 +85,43 @@ const addEmployee = () => {
 const updateRole = () => {
     inquirer.prompt(
         {
-            // select employee
+            type: 'list',
+            name: 'employee',
+            message: 'Select an employee.',
+            choices: []
+            // // TODO: figure out how to include list of employees from DB
         },
         {
+            type: 'list',
+            name: 'role',
+            message: 'What is the employees role?',
+            choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Accountant', 'Legal Team Lead', 'Lawyer']
             // select role
         }
     )
 }
 
+//   * Update employee managers
 const updateManager = () => {
     inquirer.prompt(
         {
-            // select employee
+            type: 'list',
+            name: 'employee',
+            message: 'Select an employee.',
+            choices: []
+            // // TODO: figure out how to include list of employees from DB        
         },
         {
-            // select manager
+            type: 'list',
+            name: 'role',
+            message: 'Who is the employees manager?',
+            choices: []
+            // TODO: figure out how to include list of managers from DB
         }
     )
 }
 
-// Bonus points if you're able to:
 
-//   * Update employee managers
 
 //   * View employees by manager
 
