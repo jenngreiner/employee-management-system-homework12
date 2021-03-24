@@ -20,12 +20,12 @@ const connection = mysql.createConnection({
 connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}`);
-    // call function to start
+    selectTask();
 });
 
 // TODO: Inquirer prompt
-const addInfo = () => {
-    // Add departments, roles, employees
+const selectTask = () => {
+
     inquirer.prompt(
         {
             type: 'list',
@@ -34,7 +34,8 @@ const addInfo = () => {
             choices: ['View all Employees', 'View all Employees by Department', 'View all employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager']
         }
     ).then((answer) =>
-        // TODO case statement to call functions based on answer
+        // TODO switch statement to call functions based on answer
+        
     )
 };
 
@@ -49,9 +50,48 @@ const viewAllEmployees = (data) => {
         res.forEach(({ id, first_name, last_name, title, department, salary, manager }) => {
             console.log(`id: ${id} || first_name: ${first_name} || last_name: ${last_name} || title: ${title} || department: ${department} || salary: ${salary} || manager: ${manager}`);
         })
-    }
+    })
+};
+// Add departments, roles, employees
+const addEmployee = () => {
+    inquirer.prompt(
+        {
+            // what is the employees first name (input)
+        },
+        {
+            // what is the employees last name (input)
+        },
+        {
+            // what is the employees role (list)
+        },
+        {
+            // who is the employees manager? (list)
+        }
+    )
+}
 
 //   * Update employee roles
+const updateRole = () => {
+    inquirer.prompt(
+        {
+            // select employee
+        },
+        {
+            // select role
+        }
+    )
+}
+
+const updateManager = () => {
+    inquirer.prompt(
+        {
+            // select employee
+        },
+        {
+            // select manager
+        }
+    )
+}
 
 // Bonus points if you're able to:
 
