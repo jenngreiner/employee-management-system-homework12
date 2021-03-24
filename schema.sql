@@ -1,10 +1,10 @@
-DROP DATABASE IF EXISTS employeTrackerDB;
+DROP DATABASE IF EXISTS employeeTrackerDB;
 CREATE database employeeTrackerDB;
 
-USE employeTrackerDB;
+USE employeeTrackerDB;
 
-CREATE TABLE employee (
-    id INT NOT NULL,
+CREATE TABLE employees (
+    id INT NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     role_id INT NOT NULL,
@@ -26,5 +26,6 @@ CREATE TABLE department (
     PRIMARY KEY (id)
 );
 
+INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('Jenn', 'Greiner', '2312', '3435');
 
 

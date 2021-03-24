@@ -33,9 +33,46 @@ const selectTask = () => {
             message: "What would you like to do?",
             choices: ['View all Employees', 'View all Employees by Department', 'View all employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager']
         }
-    ).then((answer) =>
-        // TODO switch statement to call functions based on answer
-        
+    ).then((answer) => {
+        switch (answer.action) {
+            case 'View all Employees':
+                viewAllEmployees();
+                break;
+
+            case 'View all Employees by Department':
+                viewByDepartment();
+                break;
+
+            case 'View all employees by Manager':
+                viewByManager();
+                break;
+
+            case 'Add Employee':
+                addEmployee();
+                break;
+
+            case 'Remove Employee':
+                removeEmployee();
+                break;
+
+            case 'Update Employee Role':
+                updateRole();
+                break;
+
+            case 'Update Employee Manager':
+                updateManager();
+                break;
+
+            case 'Exit':
+                connection.end();
+                break;
+
+            default:
+                console.log(`Invalid action: ${answer.action}`);
+                break;
+        }
+
+    }
     )
 };
 
@@ -44,14 +81,37 @@ const selectTask = () => {
 //   * View departments, roles, employees
 const viewAllEmployees = (data) => {
     // inner join
-    const query = ''
+    const query = 'SELECT * FROM employees'
     connection.query(query, data, (err, res) => {
         if (err) throw err;
         res.forEach(({ id, first_name, last_name, title, department, salary, manager }) => {
-            console.log(`id: ${id} || first_name: ${first_name} || last_name: ${last_name} || title: ${title} || department: ${department} || salary: ${salary} || manager: ${manager}`);
+            console.table(`id: ${id} || first_name: ${first_name} || last_name: ${last_name} || title: ${title} || department: ${department} || salary: ${salary} || manager: ${manager}`);
         })
     })
 };
+
+const viewByManager = (data) => {
+    // inner join
+    const query = 'SELECT * FROM employees'
+    connection.query(query, data, (err, res) => {
+        if (err) throw err;
+        res.forEach(({ id, first_name, last_name, title, department, salary, manager }) => {
+            console.table(`id: ${id} || first_name: ${first_name} || last_name: ${last_name} || title: ${title} || department: ${department} || salary: ${salary} || manager: ${manager}`);
+        })
+    })
+};
+
+const viewByDepartment = (data) => {
+    // inner join
+    const query = 'SELECT * FROM employees'
+    connection.query(query, data, (err, res) => {
+        if (err) throw err;
+        res.forEach(({ id, first_name, last_name, title, department, salary, manager }) => {
+            console.table(`id: ${id} || first_name: ${first_name} || last_name: ${last_name} || title: ${title} || department: ${department} || salary: ${salary} || manager: ${manager}`);
+        })
+    })
+};
+
 // * Add departments, roles, employees
 const addEmployee = () => {
     inquirer.prompt(
@@ -79,6 +139,10 @@ const addEmployee = () => {
             // TODO: figure out how to include list of managers from DB
         }
     )
+}
+
+const removeEmployee = () => {
+
 }
 
 //   * Update employee roles
