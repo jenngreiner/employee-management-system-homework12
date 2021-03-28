@@ -25,7 +25,6 @@ connection.connect((err) => {
 
 // TODO: Inquirer prompt
 const selectTask = () => {
-
     inquirer.prompt(
         {
             type: 'list',
@@ -51,7 +50,7 @@ const selectTask = () => {
                 addEmployee();
                 break;
 
-            case 'Remove Employee':
+            case 'Remove Employee': // bonus
                 removeEmployee();
                 break;
 
@@ -90,7 +89,8 @@ const viewAllEmployees = (data) => {
     })
 };
 
-const viewByManager = (data) => {
+const viewByManager = (data) => { // bonus
+    //TODO inquirer which manager they want to view
     // inner join
     const query = 'SELECT * FROM employees'
     connection.query(query, data, (err, res) => {
@@ -102,6 +102,8 @@ const viewByManager = (data) => {
 };
 
 const viewByDepartment = (data) => {
+    //TODO inquirer which department they want to view
+
     // inner join
     const query = 'SELECT * FROM employees'
     connection.query(query, data, (err, res) => {
@@ -138,10 +140,10 @@ const addEmployee = () => {
             choices: []
             // TODO: figure out how to include list of managers from DB
         }
-    )
+    ) // TODO: post function
 }
 
-const removeEmployee = () => {
+const removeEmployee = () => { // bonus
 
 }
 
@@ -162,7 +164,7 @@ const updateRole = () => {
             choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Accountant', 'Legal Team Lead', 'Lawyer']
             // select role
         }
-    )
+    ) // TODO Update function
 }
 
 //   * Update employee managers
@@ -182,13 +184,13 @@ const updateManager = () => {
             choices: []
             // TODO: figure out how to include list of managers from DB
         }
-    )
+    ) // TODO Update function
 }
 
 
+//BONUS
+// * View employees by manager
 
-//   * View employees by manager
+// * Delete departments, roles, and employees
 
-//   * Delete departments, roles, and employees
-
-//   * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
+// * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
