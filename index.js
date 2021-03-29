@@ -30,7 +30,7 @@ const start = () => {
             type: 'list',
             name: 'task',
             message: "What would you like to do?",
-            choices: ['View all Employees', 'View Employees by Department', 'View Employees by Role', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'Exit']
+            choices: ['View all Employees', 'View Employees by Department', 'View Employees by Role', 'Add Employee', 'Add Department', 'Add Role', 'Update Employee Role', 'Update Employee Manager', 'Remove Employee', 'Exit']
         }
     ).then((answer) => {
         switch (answer.task) {
@@ -50,17 +50,25 @@ const start = () => {
                 addEmployee();
                 break;
 
-            case 'Remove Employee': // bonus
-                removeEmployee();
+            case 'Add Department':
+                addDepartment();
+                break;
+
+            case 'Add Role':
+                addRole();
                 break;
 
             case 'Update Employee Role':
                 updateRole();
                 break;
 
-            case 'Update Employee Manager':
-                updateManager();
-                break;
+            // case 'Remove Employee': // bonus
+            //     removeEmployee();
+            //     break;
+
+            // case 'Update Employee Manager':
+            //     updateManager();
+            //     break;
 
             case 'Exit':
                 connection.end();
@@ -70,7 +78,6 @@ const start = () => {
                 console.log(`Invalid action: ${answer.action}`);
                 break;
         }
-
     }
     )
 };
@@ -210,7 +217,26 @@ const addEmployee = () => {
     });
 }
 
-
+const addDepartment = () => {
+    inquirer.prompt(
+        {
+            type: 'input',
+            name: 'department',
+            message: 'Enter the Department name'
+        }).then((answer) => {
+            connection.query(
+                'INSERT INTO department SET ?',
+                {
+                    department: answer.department,
+                },
+                (err) => {
+                    if (err) throw err;
+                    console.log(`Success`);
+                    start();
+                }
+            );
+        })
+}
 
 //   * Update employee roles
 const updateRole = () => {
