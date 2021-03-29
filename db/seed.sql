@@ -1,13 +1,13 @@
 USE employeeTrackerDB;
 
-INSERT INTO role(id, title, salary)
-VALUES (1, "Sales Lead", 120000),
-    (2, "Salesperson", 75000),
-    (3, "Lead Engineer", 150000),
-    (4, "Software Engineer", 110000),
-    (5, "Accountant", 75000),
-    (6, "Legal Team lead", 120000),
-    (7, "Lawyer", 110000);
+INSERT INTO role(id, title, salary, department_id)
+VALUES (1, "Sales Lead", 120000, 1),
+    (2, "Salesperson", 75000, 1),
+    (3, "Lead Engineer", 150000, 2),
+    (4, "Software Engineer", 110000, 2),
+    (5, "Accountant", 75000, 3),
+    (6, "Legal Team lead", 120000, 4),
+    (7, "Lawyer", 110000, 4);
 
 INSERT INTO department(department)
 VALUES ("Sales"), ("Engineering"), ("Finance"), ("Legal");
