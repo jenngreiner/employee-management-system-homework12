@@ -30,10 +30,10 @@ const selectTask = () => {
             type: 'list',
             name: 'task',
             message: "What would you like to do?",
-            choices: ['View all Employees', 'View all Employees by Department', 'View all employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager']
+            choices: ['View all Employees', 'View all Employees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager']
         }
     ).then((answer) => {
-        switch (answer.action) {
+        switch (answer.task) {
             case 'View all Employees':
                 viewAllEmployees();
                 break;
@@ -42,7 +42,7 @@ const selectTask = () => {
                 viewByDepartment();
                 break;
 
-            case 'View all employees by Manager':
+            case 'View all Employees by Manager':
                 viewByManager();
                 break;
 
@@ -78,45 +78,39 @@ const selectTask = () => {
 
 // TODO: CRUD requests
 //   * View departments, roles, employees
-const viewAllEmployees = (data) => {
+const viewAllEmployees = () => {
     // inner join
-    const query = 'SELECT * FROM employees'
-    connection.query(query, data, (err, res) => {
+    const query = 'SELECT * FROM employees';
+    connection.query(query, (err, res) => {
         if (err) throw err;
-        res.forEach(({ id, first_name, last_name, title, department, salary, manager }) => {
-            console.table(`id: ${id} || first_name: ${first_name} || last_name: ${last_name} || title: ${title} || department: ${department} || salary: ${salary} || manager: ${manager}`);
-        })
+        console.table(res);
     })
 };
 
-const viewByManager = (data) => { // bonus
+const viewByManager = () => { // bonus
     //TODO inquirer which manager they want to view
     // inner join
-    const query = 'SELECT * FROM employees'
-    connection.query(query, data, (err, res) => {
+    const query = 'SELECT * FROM employees';
+    connection.query(query, (err, res) => {
         if (err) throw err;
-        res.forEach(({ id, first_name, last_name, title, department, salary, manager }) => {
-            console.table(`id: ${id} || first_name: ${first_name} || last_name: ${last_name} || title: ${title} || department: ${department} || salary: ${salary} || manager: ${manager}`);
-        })
+        console.table(res);
     })
 };
 
-const viewByDepartment = (data) => {
+const viewByDepartment = () => {
     //TODO inquirer which department they want to view
 
     // inner join
-    const query = 'SELECT * FROM employees'
-    connection.query(query, data, (err, res) => {
+    const query = 'SELECT * FROM employees';
+    connection.query(query, (err, res) => {
         if (err) throw err;
-        res.forEach(({ id, first_name, last_name, title, department, salary, manager }) => {
-            console.table(`id: ${id} || first_name: ${first_name} || last_name: ${last_name} || title: ${title} || department: ${department} || salary: ${salary} || manager: ${manager}`);
-        })
+        console.table(res);
     })
 };
 
 // * Add departments, roles, employees
 const addEmployee = () => {
-    inquirer.prompt(
+    inquirer.prompt([
         {
             type: 'input',
             name: 'firstName',
@@ -133,16 +127,79 @@ const addEmployee = () => {
             message: 'What is the employees role?',
             choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Accountant', 'Legal Team Lead', 'Lawyer']
         },
-        {
-            type: 'list',
-            name: 'role',
-            message: 'Who is the employees manager?',
-            choices: []
-            // TODO: figure out how to include list of managers from DB
-        }
-    ) // TODO: post function
+        // {
+        //     type: 'list',
+        //     name: 'manager',
+        //     message: 'Who is the employees manager?',
+        //     choices: []
+        //     // TODO: figure out how to include list of managers from DB
+        // }
+        // Post Function
+    ]).then((answer) => {
+        // when finished prompting, insert a new item into the db with that info
+        connection.query(
+            'INSERT INTO employees SET ?',
+            {
+                first_name: answer.firstName,
+                last_name: answer.lastName,
+                role_id: answer.role,
+                // manager_id: answer.manager,
+            },
+            (err) => {
+                if (err) throw err;
+                console.log(`${answer.firstName} ${answer.lastName} was added successfully.`);
+                selectTask();
+            }
+        );
+    });
 }
 
+const postAuction = () => {
+    // prompt for info about the item being put up for auction
+    inquirer
+        .prompt([
+            {
+                name: 'item',
+                type: 'input',
+                message: 'What is the item you would like to submit?',
+            },
+            {
+                name: 'category',
+                type: 'input',
+                message: 'What category would you like to place your auction in?',
+            },
+            {
+                name: 'startingBid',
+                type: 'input',
+                message: 'What would you like your starting bid to be?',
+                validate(value) {
+                    if (isNaN(value) === false) {
+                        return true;
+                    }
+                    return false;
+                },
+            },
+        ])
+        .then((answer) => {
+            // when finished prompting, insert a new item into the db with that info
+            connection.query(
+                'INSERT INTO auctions SET ?',
+                // QUESTION: What does the || 0 do?
+                {
+                    item_name: answer.item,
+                    category: answer.category,
+                    starting_bid: answer.startingBid || 0,
+                    highest_bid: answer.startingBid || 0,
+                },
+                (err) => {
+                    if (err) throw err;
+                    console.log('Your auction was created successfully!');
+                    // re-prompt the user for if they want to bid or post
+                    start();
+                }
+            );
+        });
+};
 const removeEmployee = () => { // bonus
 
 }

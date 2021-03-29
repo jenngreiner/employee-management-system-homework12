@@ -44,6 +44,7 @@ Our information was gathered from Denver historical sites as well as Wikipedia. 
 
 ## Credits
 * [W3 Schools](https://www.w3schools.com/)
+* [W3 Schools: SQL Foreign Keys](https://www.w3schools.com/sql/sql_foreignkey.asp)
 * [Moment.js](https://momentjs.com/)
 * [MDN Web Docs](https://developer.mozilla.org/)
 * [Bootstrap](https://getbootstrap.com/)
