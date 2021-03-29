@@ -20,17 +20,17 @@ const connection = mysql.createConnection({
 connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}`);
-    selectTask();
+    start();
 });
 
 // TODO: Inquirer prompt
-const selectTask = () => {
+const start = () => {
     inquirer.prompt(
         {
             type: 'list',
             name: 'task',
             message: "What would you like to do?",
-            choices: ['View all Employees', 'View all Employees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager']
+            choices: ['View all Employees', 'View Employees by Department', 'View Employees by Role', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'Exit']
         }
     ).then((answer) => {
         switch (answer.task) {
@@ -38,12 +38,12 @@ const selectTask = () => {
                 viewAllEmployees();
                 break;
 
-            case 'View all Employees by Department':
+            case 'View Employees by Department':
                 viewByDepartment();
                 break;
 
-            case 'View all Employees by Manager':
-                viewByManager();
+            case 'View Employees by Role':
+                viewByRole();
                 break;
 
             case 'Add Employee':
@@ -75,36 +75,93 @@ const selectTask = () => {
     )
 };
 
-
-// TODO: CRUD requests
-//   * View departments, roles, employees
+// View all Employees
 const viewAllEmployees = () => {
-    // inner join
-    const query = 'SELECT * FROM employees';
+    // Query to return ID, first name, last name, role, salary, department, and manager name for all employees in the database
+    const query = "SELECT employees.id, employees.first_name, employees.last_name, role.title, role.salary, department.department, CONCAT(e.first_name, ' ' ,e.last_name) AS Manager FROM employees INNER JOIN role on role.id = employees.role_id INNER JOIN department on department.id = role.department_id left join employees e on employees.manager_id = e.id ORDER BY employees.id ASC";
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
-    })
-};
-
-const viewByManager = () => { // bonus
-    //TODO inquirer which manager they want to view
-    // inner join
-    const query = 'SELECT * FROM employees';
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.table(res);
+        start();
     })
 };
 
 const viewByDepartment = () => {
     //TODO inquirer which department they want to view
+    inquirer.prompt(
+        {
+            type: 'list',
+            name: 'department',
+            message: 'Select a department.',
+            choices: ['Sales', 'Engineering', 'Finance', 'Legal']
+        }
+    ).then((answer) => {
+        // Return data for department chosen above
+        const query = `SELECT  employees.id, employees.first_name, employees.last_name, department.department, role.title, role.salary, CONCAT(e.first_name, ' ' ,e.last_name) AS Manager 
+        FROM employees 
+        INNER JOIN role on role.id = employees.role_id 
+        INNER JOIN department on department.id = role.department_id 
+        left join employees e on employees.manager_id = e.id
+        WHERE department.department = '${answer.department}'`;
+        connection.query(query, (err, res) => {
+            if (err) throw err;
+            console.table(res);
+            start();
+        })
+    })
+};
 
-    // inner join
-    const query = 'SELECT * FROM employees';
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.table(res);
+// Query to get list of roles from DB for viewByRole and addEmployee functions
+var roleArray = [];
+function selectRole() {
+    const query = `SELECT title FROM role`;
+    connection.query(query, function (err, res) {
+        if (err) throw err
+        for (var i = 0; i < res.length; i++) {
+            roleArray.push(res[i].value);
+        };
+    });
+    return roleArray;
+};
+
+// Query to get list of managers from DB for addEmployee function
+var managerArray = [];
+function selectManager() {
+    const query = `SELECT CONCAT(e.first_name, ' ' ,e.last_name) AS Manager
+    FROM employees
+    left join employees e on employees.manager_id = e.id
+    WHERE employees.manager_id IS NOT NULL`
+    connection.query(query, function (err, res) {
+        if (err) throw err
+        for (var i = 0; i < res.length; i++) {
+            managerArray.push(res[i].Manager);
+        };
+    });
+    return managerArray;
+};
+
+const viewByRole = () => {
+    // Inquirer which role they want to view
+    inquirer.prompt(
+        {
+            type: 'list',
+            name: 'role',
+            message: 'Select a Role.',
+            choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Accountant', 'Legal Team Lead', 'Lawyer']
+        }
+    ).then((answer) => {
+        // Return data for role chosen above
+        const query = `SELECT employees.id, employees.first_name, employees.last_name, department.department, role.title, role.salary, CONCAT(e.first_name, ' ' ,e.last_name) AS Manager 
+        FROM employees 
+        INNER JOIN role on role.id = employees.role_id 
+        INNER JOIN department on department.id = role.department_id
+        left join employees e on employees.manager_id = e.id 
+        WHERE role.title = '${answer.role}'`;
+        connection.query(query, (err, res) => {
+            if (err) throw err;
+            console.table(res);
+            start();
+        })
     })
 };
 
@@ -127,13 +184,12 @@ const addEmployee = () => {
             message: 'What is the employees role?',
             choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Accountant', 'Legal Team Lead', 'Lawyer']
         },
-        // {
-        //     type: 'list',
-        //     name: 'manager',
-        //     message: 'Who is the employees manager?',
-        //     choices: []
-        //     // TODO: figure out how to include list of managers from DB
-        // }
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'Who is the employees manager?',
+            choices: selectManager()
+        }
         // Post Function
     ]).then((answer) => {
         // when finished prompting, insert a new item into the db with that info
@@ -143,66 +199,18 @@ const addEmployee = () => {
                 first_name: answer.firstName,
                 last_name: answer.lastName,
                 role_id: answer.role,
-                // manager_id: answer.manager,
+                manager_id: answer.manager,
             },
             (err) => {
                 if (err) throw err;
                 console.log(`${answer.firstName} ${answer.lastName} was added successfully.`);
-                selectTask();
+                start();
             }
         );
     });
 }
 
-const postAuction = () => {
-    // prompt for info about the item being put up for auction
-    inquirer
-        .prompt([
-            {
-                name: 'item',
-                type: 'input',
-                message: 'What is the item you would like to submit?',
-            },
-            {
-                name: 'category',
-                type: 'input',
-                message: 'What category would you like to place your auction in?',
-            },
-            {
-                name: 'startingBid',
-                type: 'input',
-                message: 'What would you like your starting bid to be?',
-                validate(value) {
-                    if (isNaN(value) === false) {
-                        return true;
-                    }
-                    return false;
-                },
-            },
-        ])
-        .then((answer) => {
-            // when finished prompting, insert a new item into the db with that info
-            connection.query(
-                'INSERT INTO auctions SET ?',
-                // QUESTION: What does the || 0 do?
-                {
-                    item_name: answer.item,
-                    category: answer.category,
-                    starting_bid: answer.startingBid || 0,
-                    highest_bid: answer.startingBid || 0,
-                },
-                (err) => {
-                    if (err) throw err;
-                    console.log('Your auction was created successfully!');
-                    // re-prompt the user for if they want to bid or post
-                    start();
-                }
-            );
-        });
-};
-const removeEmployee = () => { // bonus
 
-}
 
 //   * Update employee roles
 const updateRole = () => {
@@ -248,6 +256,28 @@ const updateManager = () => {
 //BONUS
 // * View employees by manager
 
+// const viewByManager = () => { // bonus
+//     //TODO inquirer which manager they want to view
+//     // inner join
+//     const query = 'SELECT * FROM employees';
+//     connection.query(query, (err, res) => {
+//         if (err) throw err;
+//         console.table(res);
+//     })
+// };
+
 // * Delete departments, roles, and employees
+// const removeEmployee = () => { // bonus
+
+// }
 
 // * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
+
+// const viewAllDepartments = () => {
+//     const query = "SELECT department.department, employees.first_name, employees.last_name FROM employees INNER JOIN role on role.id = employees.role_id INNER JOIN department on department.id = role.department_id ORDER BY department.department ASC";
+//     connection.query(query, (err, res) => {
+//         if (err) throw err;
+//         console.table(res);
+//         start();
+//     })
+// };
